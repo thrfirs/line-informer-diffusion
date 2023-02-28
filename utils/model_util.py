@@ -26,6 +26,11 @@ def get_model_args(args, data):
         num_actions = data.dataset.num_actions
     else:
         num_actions = 1
+    
+    if hasattr(data.dataset, 'num_params'):
+        num_params = data.dataset.num_params
+    else:
+        num_params = 1
 
     # SMPL defaults
     data_rep = 'rot6d'
@@ -41,7 +46,7 @@ def get_model_args(args, data):
         njoints = 251
         nfeats = 1
 
-    return {'modeltype': '', 'njoints': njoints, 'nfeats': nfeats, 'num_actions': num_actions,
+    return {'modeltype': '', 'njoints': njoints, 'nfeats': nfeats, 'num_actions': num_actions, 'num_params': num_params,
             'translation': True, 'pose_rep': 'rot6d', 'glob': True, 'glob_rot': True,
             'latent_dim': args.latent_dim, 'ff_size': 1024, 'num_layers': args.layers, 'num_heads': 4,
             'dropout': 0.1, 'activation': "gelu", 'data_rep': data_rep, 'cond_mode': cond_mode,

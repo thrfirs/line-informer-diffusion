@@ -125,7 +125,6 @@ class TrainLoop:
             self.opt.load_state_dict(state_dict)
 
     def run_loop(self):
-
         for epoch in range(self.num_epochs):
             print(f'Starting epoch {epoch}')
             for motion, cond in tqdm(self.data):

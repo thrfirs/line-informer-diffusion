@@ -34,7 +34,7 @@ class TokenEmbedding(nn.Module):
                 nn.init.kaiming_normal_(m.weight,mode='fan_in',nonlinearity='leaky_relu')
 
     def forward(self, x):
-        x = self.tokenConv(x.permute(0, 2, 1)).transpose(1,2)
+        x = self.tokenConv(x.permute(0, 2, 1)).transpose(1,2)  # shape: (batch_size, seq_len, d_model)
         return x
 
 class FixedEmbedding(nn.Module):
@@ -99,11 +99,10 @@ class DataEmbedding(nn.Module):
 
         self.value_embedding = TokenEmbedding(c_in=c_in, d_model=d_model)
         self.position_embedding = PositionalEmbedding(d_model=d_model)
-        self.temporal_embedding = TemporalEmbedding(d_model=d_model, embed_type=embed_type, freq=freq) if embed_type!='timeF' else TimeFeatureEmbedding(d_model=d_model, embed_type=embed_type, freq=freq)
-
+        
         self.dropout = nn.Dropout(p=dropout)
 
-    def forward(self, x, x_mark):
-        x = self.value_embedding(x) + self.position_embedding(x) + self.temporal_embedding(x_mark)
+    def forward(self, x):
+        x = self.value_embedding(x) + self.position_embedding(x)  # shape: (batch_size, seq_len, d_model)
         
         return self.dropout(x)

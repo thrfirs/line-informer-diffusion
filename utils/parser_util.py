@@ -75,7 +75,7 @@ def add_diffusion_options(parser):
 def add_model_options(parser):
     group = parser.add_argument_group('model')
     group.add_argument("--arch", default='trans_enc',
-                       choices=['trans_enc', 'trans_dec', 'gru'], type=str,
+                       choices=['trans_enc', 'trans_dec', 'gru', 'informer'], type=str,
                        help="Architecture types as reported in the paper.")
     group.add_argument("--emb_trans_dec", default=False, type=bool,
                        help="For trans_dec architecture only, if true, will inject condition as a class token"
@@ -93,6 +93,7 @@ def add_model_options(parser):
     group.add_argument("--unconstrained", action='store_true',
                        help="Model is trained unconditionally. That is, it is constrained by neither text nor action. "
                             "Currently tested on HumanAct12 only.")
+    group.add_argument("--param_constrained", action='store_true', help="Model is trained with parameter constraints.")
 
 
 
@@ -204,6 +205,8 @@ def add_evaluation_options(parser):
 def get_cond_mode(args):
     if args.unconstrained:
         cond_mode = 'no_cond'
+    elif args.param_constrained:
+        cond_mode = 'param'
     elif args.dataset in ['kit', 'humanml']:
         cond_mode = 'text'
     else:

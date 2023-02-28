@@ -15,7 +15,7 @@ class Informer(nn.Module):
                 output_attention = False, distil=True, mix=True,
                 device=torch.device('cuda:0')):
         super(Informer, self).__init__()
-        self.pred_len = out_len
+        # self.pred_len = out_len
         self.attn = attn
         self.output_attention = output_attention
 
@@ -64,21 +64,20 @@ class Informer(nn.Module):
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
         
-    def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, 
-                enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):
-        enc_out = self.enc_embedding(x_enc, x_mark_enc)
-        enc_out, attns = self.encoder(enc_out, attn_mask=enc_self_mask)
+    def forward(self, x_enc, cond_emb, enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):
+        # shape of x_enc: [bs, seq_len, enc_in]
+        # shape of cond_emb: [bs, 1, d_model]
+        x_enc_emb = self.enc_embedding(x_enc)
+        x_enc_emb = torch.cat([cond_emb, x_enc_emb], dim=1)
+        enc_out, attns = self.encoder(x_enc_emb, attn_mask=enc_self_mask)
 
-        dec_out = self.dec_embedding(x_dec, x_mark_dec)
-        dec_out = self.decoder(dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
+        x_dec = torch.zeros(x_enc.shape).float()
+        x_dec_emb = self.dec_embedding(x_dec)
+        dec_out = self.decoder(x_dec_emb, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
         dec_out = self.projection(dec_out)
         
-        # dec_out = self.end_conv1(dec_out)
-        # dec_out = self.end_conv2(dec_out.transpose(2,1)).transpose(1,2)
-        if self.output_attention:
-            return dec_out[:,-self.pred_len:,:], attns
-        else:
-            return dec_out[:,-self.pred_len:,:] # [B, L, D]
+        # now x_dec and x_enc have the same length, so no need to slice, just return the entire dec_out
+        return dec_out  # [bs, out_len, c_out]
 
 
 class InformerStack(nn.Module):
