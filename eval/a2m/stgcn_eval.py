@@ -52,9 +52,9 @@ class NewDataloader:
 
                 max_n_frames = model_kwargs['y']['lengths'].max()
                 mask = model_kwargs['y']['mask'].reshape(dataiterator.batch_size, max_n_frames).bool()
-                batch["output_xyz"] = model.rot2xyz(x=batch["output"], mask=mask, pose_rep='rot6d', glob=True,
-                                                    translation=True, jointstype='smpl', vertstrans=True, betas=None,
-                                                    beta=0, glob_rot=None, get_rotations_back=False)
+                # batch["output_xyz"] = model.rot2xyz(x=batch["output"], mask=mask, pose_rep='rot6d', glob=True,
+                #                                     translation=True, jointstype='smpl', vertstrans=True, betas=None,
+                #                                     beta=0, glob_rot=None, get_rotations_back=False)
                 if model.translation:
                     # the stgcn model expects rotations only
                     batch["output"] = batch["output"][:, :-1]

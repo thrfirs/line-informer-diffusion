@@ -36,9 +36,9 @@ class NewDataloader:
                 # mask = torch.ones([batch["output"].shape[0], batch["output"].shape[-1]], dtype=bool).to(device)  # batch_size x num_frames
                 max_n_frames = model_kwargs['y']['lengths'].max()
                 mask = model_kwargs['y']['mask'].reshape(dataiterator.batch_size, max_n_frames).bool()
-                batch["output_xyz"] = model.rot2xyz(x=batch["output"], mask=mask, pose_rep='rot6d', glob=True,
-                                                    translation=True, jointstype='smpl', vertstrans=True, betas=None,
-                                                    beta=0, glob_rot=None, get_rotations_back=False)
+                # batch["output_xyz"] = model.rot2xyz(x=batch["output"], mask=mask, pose_rep='rot6d', glob=True,
+                #                                     translation=True, jointstype='smpl', vertstrans=True, betas=None,
+                #                                     beta=0, glob_rot=None, get_rotations_back=False)
                 batch["lengths"] = model_kwargs['y']['lengths'].to(device)
                 if not unconstrained:  # proceed only if not running unconstrained
                     batch["y"] = model_kwargs['y']['action'].squeeze().long().cpu()  # using torch.long so lengths/action will be used as indices

@@ -108,7 +108,7 @@ class MDM(nn.Module):
         self.output_process = OutputProcess(self.data_rep, self.input_feats, self.latent_dim, self.njoints,
                                             self.nfeats)
 
-        self.rot2xyz = Rotation2xyz(device='cpu', dataset=self.dataset)
+        # self.rot2xyz = Rotation2xyz(device='cpu', dataset=self.dataset)
 
     def parameters_wo_clip(self):
         return [p for name, p in self.named_parameters() if not name.startswith('clip_model.')]
@@ -219,12 +219,12 @@ class MDM(nn.Module):
 
     def _apply(self, fn):
         super()._apply(fn)
-        self.rot2xyz.smpl_model._apply(fn)
+        # self.rot2xyz.smpl_model._apply(fn)
 
 
     def train(self, *args, **kwargs):
         super().train(*args, **kwargs)
-        self.rot2xyz.smpl_model.train(*args, **kwargs)
+        # self.rot2xyz.smpl_model.train(*args, **kwargs)
 
 
 class PositionalEncoding(nn.Module):
