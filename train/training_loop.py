@@ -147,9 +147,10 @@ class TrainLoop:
 
                 if self.step % self.save_interval == 0:
                     self.save()
-                    self.model.eval()
-                    self.evaluate()
-                    self.model.train()
+                    # TODO: re-enable evaluation
+                    # self.model.eval()
+                    # self.evaluate()
+                    # self.model.train()
 
                     # Run for a finite amount of time in integration tests.
                     if os.environ.get("DIFFUSION_TRAINING_TEST", "") and self.step > 0:
