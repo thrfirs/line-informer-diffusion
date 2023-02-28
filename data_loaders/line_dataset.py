@@ -30,13 +30,13 @@ def get_line_relative_angles(line: List[Tuple[float, float, float]]) -> List[Tup
 
 
 class LineDataset(data.Dataset):
-    def __init__(self, path: str):
-        self.path = path
+    def __init__(self, path: str = os.path.join("data", "dataset.txt")):
+        self.index_file_path = path
         self.data = []
         self.load_data()
     
     def load_data(self):
-        with open(self.path, 'r') as f:
+        with open(self.index_file_path, 'r') as f:
             for line in f:
                 self.data.append(json.loads(line))
     
@@ -48,7 +48,7 @@ class LineDataset(data.Dataset):
         return {"line": angles, "params": params}
 
 
-def collate_fn(batch):
+def collate_fn(batch: List[Dict[str, Any]]) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
     notnone_batches = [b for b in batch if b is not None]
     databatch = [b["line"] for b in notnone_batches]  # each line is a list of Tuple[float, float, float]
 
