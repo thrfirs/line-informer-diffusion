@@ -38,6 +38,9 @@ def main():
     print("creating model and diffusion...")
     model, diffusion = create_model_and_diffusion(args, data)
     model.to(dist_util.dev())
+    if hasattr(model, "informer"):
+        # check whether informer is using cuda
+        print("informer is using cuda: ", next(model.informer.parameters()).is_cuda)
     # model.rot2xyz.smpl_model.eval()
 
     print('Total params: %.2fM' % (sum(p.numel() for p in model.parameters_wo_clip()) / 1000000.0))

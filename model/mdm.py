@@ -85,7 +85,7 @@ class MDM(nn.Module):
                 label_len=0,
                 out_len=5000,
                 d_model=latent_dim,
-            )
+            ).float()
         else:
             raise ValueError('Please choose correct architecture [trans_enc, trans_dec, gru, informer]')
 
@@ -166,7 +166,7 @@ class MDM(nn.Module):
             emb = self.embed_timestep(timesteps)  # [1, bs, d]
 
             force_mask = y.get('uncond', False)
-            param_emb = self.embed_params(y['param'])
+            param_emb = self.embed_params(y['params'])
             emb += self.mask_cond(param_emb, force_mask=force_mask)
             emb = emb.permute(1, 0, 2)  # [bs, 1, d]
 
