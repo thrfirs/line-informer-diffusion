@@ -196,7 +196,8 @@ class GaussianDiffusion:
             / (1.0 - self.alphas_cumprod)
         )
 
-        self.l2_loss = lambda a, b: (a - b) ** 2  # th.nn.MSELoss(reduction='none')  # must be None for handling mask later on.
+        #self.l2_loss = lambda a, b: (a - b) ** 2  # th.nn.MSELoss(reduction='none')  # must be None for handling mask later on.
+        self.l2_loss = th.nn.MSELoss()
 
     def masked_l2(self, a, b, mask):
         # assuming a.shape == b.shape == bs, J, Jdim, seqlen
@@ -1240,7 +1241,7 @@ class GaussianDiffusion:
 
         # enc = model.model._modules['module']
         enc = model.model
-        mask = model_kwargs['y']['mask']
+        #mask = model_kwargs['y']['mask']
         # get_xyz = lambda sample: enc.rot2xyz(sample, mask=None, pose_rep=enc.pose_rep, translation=enc.translation,
         #                                      glob=enc.glob,
         #                                      # jointstype='vertices',  # 3.4 iter/sec # USED ALSO IN MotionCLIP
@@ -1300,7 +1301,8 @@ class GaussianDiffusion:
             }[self.model_mean_type]
             assert model_output.shape == target.shape == x_start.shape  # [bs, njoints, nfeats, nframes]
 
-            terms["rot_mse"] = self.masked_l2(target, model_output, mask) # mean_flat(rot_mse)
+            #terms["rot_mse"] = self.masked_l2(target, model_output, mask) # mean_flat(rot_mse)
+            terms["rot_mse"] = self.l2_loss(target, model_output)
 
             # target_xyz, model_output_xyz = None, None
 
