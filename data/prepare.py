@@ -12,11 +12,10 @@ def prepare_file(file_path: str) -> str:
     pd = pandas.read_excel(file_path)
     data = pd.to_numpy()
     line = data.tolist()[:5000]
-    x_span = max([x for x, y, z in line]) - min([x for x, y, z in line])
-    y_span = max([y for x, y, z in line]) - min([y for x, y, z in line])
-    z_span = max([z for x, y, z in line]) - min([z for x, y, z in line])
     start_x, start_y, start_z = line[0]
-    j = {"line": line, "params": [x_span, y_span, z_span, start_x, start_y, start_z]}
+    second_x, second_y, second_z = line[1]
+    dist = ((second_x - start_x) ** 2 + (second_y - start_y) ** 2 + (second_z - start_z) ** 2) ** 0.5
+    j = {"line": line, "base_params": [dist]}
     prepared_file_path = os.path.join(prepared_dataset_dir, os.path.basename(file_path) + ".json")
     with open(prepared_file_path, "w") as f:
         json.dump(j, f, separators=(',', ':'))
@@ -36,7 +35,8 @@ def main():
     
     with open("dataset.txt", "w") as f:
         for path in prepared_paths:
-            print(path, file=f)
+            abs_path = os.path.abspath(path)
+            print(abs_path, file=f)
 
 
 if __name__ == "__main__":
