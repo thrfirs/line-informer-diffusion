@@ -101,9 +101,8 @@ def main():
         print(f"created {len(all_lines) * args.batch_size} samples")
 
 
-    all_lines = np.concatenate(all_lines, axis=0)
-    all_lines = all_lines[:total_num_samples]  # [bs, njoints, 6, seqlen]
-    all_params = all_params[:total_num_samples]
+    all_lines = np.concatenate(all_lines, axis=0)[:total_num_samples]
+    all_params = np.concatenate(all_params, axis=0)[:total_num_samples]
     all_lengths = np.concatenate(all_lengths, axis=0)[:total_num_samples]
 
     if os.path.exists(out_path):
