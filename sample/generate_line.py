@@ -94,7 +94,7 @@ def main():
             const_noise=False,
         )
 
-        all_params += model_kwargs['y']["params"]
+        all_params.append(model_kwargs['y']["params"].cpu().numpy())
         all_lines.append(sample.cpu().numpy())
         all_lengths.append(model_kwargs['y']['lengths'].cpu().numpy())
 
