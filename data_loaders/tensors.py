@@ -27,13 +27,16 @@ def collate(batch):
     else:
         lenbatch = [len(b['inp'][0][0]) for b in notnone_batches]
 
-
     databatchTensor = collate_tensors(databatch)
     lenbatchTensor = torch.as_tensor(lenbatch)
     maskbatchTensor = lengths_to_mask(lenbatchTensor, databatchTensor.shape[-1]).unsqueeze(1).unsqueeze(1) # unqueeze for broadcasting
 
     motion = databatchTensor
     cond = {'y': {'mask': maskbatchTensor, 'lengths': lenbatchTensor}}
+
+    if "params" in notnone_batches[0]:
+        params = [b['params'] for b in notnone_batches]
+        cond['y'].update({'params': torch.as_tensor(params, dtype=torch.float32)})
 
     if 'text' in notnone_batches[0]:
         textbatch = [b['text'] for b in notnone_batches]

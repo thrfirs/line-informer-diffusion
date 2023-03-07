@@ -28,5 +28,11 @@ class ClassifierFreeSampleModel(nn.Module):
         y_uncond['uncond'] = True
         out = self.model(x, timesteps, y)
         out_uncond = self.model(x, timesteps, y_uncond)
-        return out_uncond + (y['scale'].view(-1, 1, 1, 1) * (out - out_uncond))
+        #print("CO:", out_uncond.shape)
+        if len(out.shape) == 4:
+            return out_uncond + (y['scale'].view(-1, 1, 1, 1) * (out - out_uncond))
+        elif len(out.shape) == 3:
+            return out_uncond + (y['scale'].view(-1, 1, 1) * (out - out_uncond))
+        else:
+            raise ValueError(f"Doesn't support dimensions {len(out.shape)}")
 
