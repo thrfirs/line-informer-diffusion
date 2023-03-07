@@ -2,11 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils.masking import TriangularCausalMask, ProbMask
-from models.encoder import Encoder, EncoderLayer, ConvLayer, EncoderStack
-from models.decoder import Decoder, DecoderLayer
-from models.attn import FullAttention, ProbAttention, AttentionLayer
-from models.embed import DataEmbedding
+from informer.utils.masking import TriangularCausalMask, ProbMask
+from informer.models.encoder import Encoder, EncoderLayer, ConvLayer, EncoderStack
+from informer.models.decoder import Decoder, DecoderLayer
+from informer.models.attn import FullAttention, ProbAttention, AttentionLayer
+from informer.models.embed import DataEmbedding
 
 class Informer(nn.Module):
     def __init__(self, enc_in, dec_in, c_out, seq_len, label_len, out_len, 
@@ -71,7 +71,9 @@ class Informer(nn.Module):
         x_enc_emb = torch.cat([cond_emb, x_enc_emb], dim=1)
         enc_out, attns = self.encoder(x_enc_emb, attn_mask=enc_self_mask)
 
-        x_dec = torch.zeros(x_enc.shape).float()
+        #x_dec = torch.zeros(x_enc.shape).float()
+        # copy x_enc to x_dec and set it to all zero
+        x_dec = torch.zeros_like(x_enc)
         x_dec_emb = self.dec_embedding(x_dec)
         dec_out = self.decoder(x_dec_emb, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
         dec_out = self.projection(dec_out)
