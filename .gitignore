@@ -131,4 +131,5 @@ dmypy.json
 
 data/**/*.xlsx
 data/**/*.json
+data/**/*.npy
 data/dataset.txt
