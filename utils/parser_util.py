@@ -129,9 +129,9 @@ def add_training_options(parser):
                        help="If -1, will use all samples in the specified split.")
     group.add_argument("--log_interval", default=300, type=int,
                        help="Log losses each N steps")
-    group.add_argument("--save_interval", default=2000, type=int,
+    group.add_argument("--save_interval", default=20000, type=int,
                        help="Save checkpoints and run evaluation each N steps")
-    group.add_argument("--num_steps", default=30000, type=int,
+    group.add_argument("--num_steps", default=300000, type=int,
                        help="Training will stop after the specified number of steps.")
     group.add_argument("--num_frames", default=60, type=int,
                        help="Limit for the maximal number of frames. In HumanML3D and KIT this field is ignored.")
