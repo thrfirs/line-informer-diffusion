@@ -136,9 +136,10 @@ class TrainLoop:
 
                 self.run_step(motion, cond)
                 if self.step % self.log_interval == 0:
-                    for k,v in logger.get_current().name2val.items():
+                    for k, v in logger.get_current().name2val.items():
                         if k == 'loss':
-                            print('step[{}]: loss[{:0.5f}]'.format(self.step+self.resume_step, v))
+                            #print('step[{}]: loss[{:0.5f}]'.format(self.step+self.resume_step, v))
+                            logger.log('step[{}]: loss[{:0.5f}]'.format(self.step+self.resume_step, v))
 
                         if k in ['step', 'samples'] or '_q' in k:
                             continue
