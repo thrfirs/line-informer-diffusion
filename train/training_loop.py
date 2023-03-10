@@ -169,6 +169,7 @@ class TrainLoop:
         if (self.step - 1) % self.save_interval != 0:
             tqdm.write(f"Saving final checkpoint at step {self.step+self.resume_step}...")
             self.save()
+            # TODO: re-enable evaluation
             # self.evaluate()
         logger.dumpkvs()
 
@@ -232,7 +233,7 @@ class TrainLoop:
             compute_losses = functools.partial(
                 self.diffusion.training_losses,
                 self.ddp_model,
-                micro,  # [bs, ch, image_size, image_size]
+                micro,  # [bs, seq_len, nfeats]
                 t,  # [bs](int) sampled timesteps
                 model_kwargs=micro_cond,
                 dataset=self.data.dataset
@@ -244,7 +245,7 @@ class TrainLoop:
                 with self.ddp_model.no_sync():
                     losses = compute_losses()
 
-            if isinstance(self.schedule_sampler, LossAwareSampler):
+            if isinstance(self.schedule_sampler, LossAwareSampler):  # we do not use this
                 self.schedule_sampler.update_with_local_losses(
                     t, losses["loss"].detach()
                 )
