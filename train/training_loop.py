@@ -125,44 +125,52 @@ class TrainLoop:
             self.opt.load_state_dict(state_dict)
 
     def run_loop(self):
-        for epoch in range(self.num_epochs):
-            print(f'Starting epoch {epoch}')
-            for motion, cond in tqdm(self.data):
+        with tqdm(total=self.num_epochs * len(self.data), desc="Train", dynamic_ncols=True) as pbar:
+            tqdm.write(f"Each epoch has {len(self.data)} steps.")
+            for epoch in range(self.num_epochs):
+                pbar.desc = f"[Epoch {epoch}/{self.num_epochs}]"
+                for motion, cond in self.data:
+                    if not (not self.lr_anneal_steps or self.step + self.resume_step < self.lr_anneal_steps):
+                        break
+
+                    motion = motion.to(self.device)
+                    cond['y'] = {key: val.to(self.device) if torch.is_tensor(val) else val for key, val in cond['y'].items()}
+
+                    self.run_step(motion, cond)
+                    if self.step % self.log_interval == 0:
+                        for k, v in logger.get_current().name2val.items():
+                            if k == 'loss':
+                                #print('step[{}]: loss[{:0.5f}]'.format(self.step+self.resume_step, v))
+                                log_str = f"step[{self.step+self.resume_step}]: loss[{v:0.5f}]"
+                                logger.log(log_str)
+                                tqdm.write(log_str)
+
+                            if k in ['step', 'samples'] or '_q' in k:
+                                continue
+                            else:
+                                self.train_platform.report_scalar(name=k, value=v, iteration=self.step, group_name='Loss')
+
+                    if self.step % self.save_interval == 0:
+                        tqdm.write(f"Saving checkpoint at step {self.step+self.resume_step}...")
+                        self.save()
+                        # TODO: re-enable evaluation
+                        # self.model.eval()
+                        # self.evaluate()
+                        # self.model.train()
+
+                        # Run for a finite amount of time in integration tests.
+                        if os.environ.get("DIFFUSION_TRAINING_TEST", "") and self.step > 0:
+                            return
+                    self.step += 1
+                    pbar.update(1)
                 if not (not self.lr_anneal_steps or self.step + self.resume_step < self.lr_anneal_steps):
                     break
-
-                motion = motion.to(self.device)
-                cond['y'] = {key: val.to(self.device) if torch.is_tensor(val) else val for key, val in cond['y'].items()}
-
-                self.run_step(motion, cond)
-                if self.step % self.log_interval == 0:
-                    for k, v in logger.get_current().name2val.items():
-                        if k == 'loss':
-                            #print('step[{}]: loss[{:0.5f}]'.format(self.step+self.resume_step, v))
-                            logger.log('step[{}]: loss[{:0.5f}]'.format(self.step+self.resume_step, v))
-
-                        if k in ['step', 'samples'] or '_q' in k:
-                            continue
-                        else:
-                            self.train_platform.report_scalar(name=k, value=v, iteration=self.step, group_name='Loss')
-
-                if self.step % self.save_interval == 0:
-                    self.save()
-                    # TODO: re-enable evaluation
-                    # self.model.eval()
-                    # self.evaluate()
-                    # self.model.train()
-
-                    # Run for a finite amount of time in integration tests.
-                    if os.environ.get("DIFFUSION_TRAINING_TEST", "") and self.step > 0:
-                        return
-                self.step += 1
-            if not (not self.lr_anneal_steps or self.step + self.resume_step < self.lr_anneal_steps):
-                break
         # Save the last checkpoint if it wasn't already saved.
         if (self.step - 1) % self.save_interval != 0:
+            tqdm.write(f"Saving final checkpoint at step {self.step+self.resume_step}...")
             self.save()
-            self.evaluate()
+            # self.evaluate()
+        logger.dumpkvs()
 
     def evaluate(self):
         if not self.args.eval_during_training:
@@ -273,7 +281,6 @@ class TrainLoop:
             for e in clip_weights:
                 del state_dict[e]
 
-            logger.log(f"saving model...")
             filename = self.ckpt_file_name()
             with bf.BlobFile(bf.join(self.save_dir, filename), "wb") as f:
                 torch.save(state_dict, f)
