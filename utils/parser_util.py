@@ -60,7 +60,7 @@ def add_base_options(parser):
     group.add_argument("--cuda", default=True, type=bool, help="Use cuda device, otherwise use CPU.")
     group.add_argument("--device", default=0, type=int, help="Device id to use.")
     group.add_argument("--seed", default=10, type=int, help="For fixing random seed.")
-    group.add_argument("--batch_size", default=2, type=int, help="Batch size during training.")
+    group.add_argument("--batch_size", default=4, type=int, help="Batch size during training.")
 
 
 def add_diffusion_options(parser):
@@ -82,7 +82,7 @@ def add_model_options(parser):
                             " (in addition to cross-attention).")
     group.add_argument("--layers", default=8, type=int,
                        help="Number of layers.")
-    group.add_argument("--latent_dim", default=512, type=int,  # TODO: change this to 64
+    group.add_argument("--latent_dim", default=64, type=int,  # TODO: change this to 64
                        help="Transformer/GRU width.")
     group.add_argument("--cond_mask_prob", default=.1, type=float,
                        help="The probability of masking the condition during training."
@@ -153,8 +153,6 @@ def add_sampling_options(parser):
                        help="Number of repetitions, per sample (text prompt/action)")
     group.add_argument("--guidance_param", default=2.5, type=float,
                        help="For classifier-free sampling - specifies the s parameter, as defined in the paper.")
-    group.add_argument("--params_for_line", default="", type=str,
-                       help="Params for line generation. (comma separated list of floats)")
 
 
 def add_generate_options(parser):
@@ -172,6 +170,8 @@ def add_generate_options(parser):
                        help="A text prompt to be generated. If empty, will take text prompts from dataset.")
     group.add_argument("--action_name", default='', type=str,
                        help="An action name to be generated. If empty, will take text prompts from dataset.")
+    group.add_argument("--params_for_line", default="", type=str,
+                       help="Params for line generation. (comma separated list of floats)")
 
 
 def add_edit_options(parser):
